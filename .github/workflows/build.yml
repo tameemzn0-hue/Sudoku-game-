@@ -39,6 +39,15 @@ jobs:
             npx cap add android
           fi
           npx cap sync
+
+          # استبعاد ملفات كوتلن القديمة المسببة للتعارض
+          echo "
+          configurations.all {
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
+              exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
+          }
+          " >> android/app/build.gradle
+
           cd android && chmod +x gradlew && ./gradlew assembleDebug
 
       - name: Upload APK Artifact
