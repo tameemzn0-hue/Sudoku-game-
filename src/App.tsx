@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
 
-// --- X-O AI Logic ---
 type BoardState = (string | null)[];
 
 const checkWinner = (board: BoardState) => {
@@ -26,7 +24,6 @@ const getAIMove = (board: BoardState, difficulty: 'easy' | 'medium' | 'hard'): n
     return emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
   }
 
-  // Medium / Hard logic
   for (let idx of emptyIndices) {
     const tempBoard = [...board];
     tempBoard[idx] = 'O';
@@ -49,7 +46,6 @@ const getAIMove = (board: BoardState, difficulty: 'easy' | 'medium' | 'hard'): n
 export default function App() {
   const [activeTab, setActiveTab] = useState<'sudoku' | 'xo'>('sudoku');
 
-  // --- Sudoku State ---
   const [grid, setGrid] = useState<number[][]>(Array(9).fill(0).map(() => Array(9).fill(0)));
   const [notes, setNotes] = useState<Set<number>[][]>(Array(9).fill(0).map(() => Array(9).fill(0).map(() => new Set())));
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
@@ -58,7 +54,6 @@ export default function App() {
   const [mistakes, setMistakes] = useState<number>(0);
   const [hintsLeft, setHintsLeft] = useState<number>(5);
 
-  // Initialize Sudoku Dummy Board
   useEffect(() => {
     startNewSudoku();
   }, []);
@@ -134,7 +129,6 @@ export default function App() {
     setHintsLeft(prev => prev - 1);
   };
 
-  // --- X-O State ---
   const [xoBoard, setXoBoard] = useState<BoardState>(Array(9).fill(null));
   const [isVsAI, setIsVsAI] = useState<boolean>(true);
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
@@ -171,7 +165,6 @@ export default function App() {
 
   return (
     <div style={{ background: '#0d1322', color: '#fff', minHeight: '100vh', padding: '15px', fontFamily: 'sans-serif' }}>
-      {/* Navigation Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
         <button onClick={() => setActiveTab('sudoku')} style={{ background: activeTab === 'sudoku' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>Sudoku</button>
         <button onClick={() => setActiveTab('xo')} style={{ background: activeTab === 'xo' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>X - O Game</button>
@@ -184,7 +177,6 @@ export default function App() {
             <button onClick={startNewSudoku} style={{ background: '#334155', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '5px' }}>لعبة جديدة 🔄</button>
           </div>
 
-          {/* Sudoku Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '2px', background: '#334155', padding: '4px', borderRadius: '8px' }}>
             {grid.map((row, rIdx) =>
               row.map((val, cIdx) => {
@@ -220,7 +212,6 @@ export default function App() {
             )}
           </div>
 
-          {/* Keypad */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '5px', marginTop: '15px' }}>
             {[1,2,3,4,5,6,7,8,9].map(n => (
               <button key={n} onClick={() => handleNumberInput(n)} style={{ background: '#1e293b', color: '#38bdf8', border: 'none', padding: '12px', fontSize: '18px', borderRadius: '6px' }}>{n}</button>
@@ -228,7 +219,6 @@ export default function App() {
             <button onClick={handleErase} style={{ background: '#1e293b', color: '#f43f5e', border: 'none', padding: '12px', borderRadius: '6px' }}>مسح ⌫</button>
           </div>
 
-          {/* Controls: Undo, Notes, Hint */}
           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '15px' }}>
             <button onClick={handleUndo} style={{ background: '#334155', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '6px' }}>تراجع ↩</button>
             <button onClick={() => setIsNotesMode(!isNotesMode)} style={{ background: isNotesMode ? '#10b981' : '#334155', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '6px' }}>
@@ -239,13 +229,11 @@ export default function App() {
         </div>
       ) : (
         <div>
-          {/* X-O Mode Selector */}
           <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
             <button onClick={() => setIsVsAI(true)} style={{ flex: 1, background: isVsAI ? '#0284c7' : '#1e293b', color: '#fff', padding: '10px', border: 'none', borderRadius: '6px' }}>ضد الذكاء الاصطناعي 🤖</button>
             <button onClick={() => setIsVsAI(false)} style={{ flex: 1, background: !isVsAI ? '#0284c7' : '#1e293b', color: '#fff', padding: '10px', border: 'none', borderRadius: '6px' }}>لاعبين 👥</button>
           </div>
 
-          {/* AI Difficulty Selector */}
           {isVsAI && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '15px' }}>
               {(['easy', 'medium', 'hard'] as const).map(level => (
@@ -257,8 +245,7 @@ export default function App() {
                     color: '#fff',
                     border: 'none',
                     padding: '6px 14px',
-                    borderRadius: '20px',
-                    textTransform: 'capitalize'
+                    borderRadius: '20px'
                   }}
                 >
                   {level === 'easy' ? 'سهل' : level === 'medium' ? 'متوسط' : 'صعب'}
@@ -271,7 +258,6 @@ export default function App() {
             {winner ? (winner === 'Tie' ? 'تعادل!' : `الفائز: ${winner}`) : `دور اللاعب: ${isXNext ? 'X' : 'O'}`}
           </div>
 
-          {/* X-O Board */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px', background: '#334155', padding: '5px', borderRadius: '8px' }}>
             {xoBoard.map((cell, idx) => (
               <button
