@@ -1,6 +1,54 @@
 import React, { useState, useEffect } from 'react';
 
 type BoardState = (string | null)[];
+type Difficulty = 'Easy' | 'Medium' | 'Hard' | 'Expert';
+
+const SUDOKU_BOARDS: Record<Difficulty, number[][]> = {
+  Easy: [
+    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 0, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+    [0, 6, 0, 0, 0, 0, 2, 8, 0],
+    [0, 0, 0, 4, 1, 9, 0, 0, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+  ],
+  Medium: [
+    [0, 0, 0, 2, 6, 0, 7, 0, 1],
+    [6, 8, 0, 0, 7, 0, 0, 9, 0],
+    [1, 9, 0, 0, 0, 4, 5, 0, 0],
+    [8, 2, 0, 1, 0, 0, 0, 4, 0],
+    [0, 0, 4, 6, 0, 2, 9, 0, 0],
+    [0, 5, 0, 0, 0, 3, 0, 2, 8],
+    [0, 0, 9, 3, 0, 0, 0, 7, 4],
+    [0, 4, 0, 0, 5, 0, 0, 3, 6],
+    [7, 0, 3, 0, 1, 8, 0, 0, 0]
+  ],
+  Hard: [
+    [0, 2, 0, 6, 0, 8, 0, 0, 0],
+    [5, 8, 0, 0, 0, 9, 7, 0, 0],
+    [0, 0, 0, 0, 4, 0, 0, 0, 0],
+    [3, 7, 0, 0, 0, 0, 5, 0, 0],
+    [6, 0, 0, 0, 0, 0, 0, 0, 4],
+    [0, 0, 8, 0, 0, 0, 0, 1, 3],
+    [0, 0, 0, 0, 2, 0, 0, 0, 0],
+    [0, 0, 9, 8, 0, 0, 0, 3, 6],
+    [0, 0, 0, 3, 0, 6, 0, 9, 0]
+  ],
+  Expert: [
+    [0, 0, 0, 0, 0, 0, 0, 1, 2],
+    [0, 0, 0, 0, 0, 0, 0, 0, 3],
+    [0, 0, 2, 3, 0, 0, 4, 0, 0],
+    [0, 0, 1, 8, 0, 0, 0, 0, 5],
+    [0, 6, 0, 0, 7, 0, 0, 8, 0],
+    [0, 0, 0, 0, 0, 9, 2, 0, 0],
+    [0, 0, 8, 5, 0, 0, 6, 0, 0],
+    [9, 0, 0, 0, 0, 0, 0, 0, 0],
+    [4, 7, 0, 0, 0, 0, 0, 0, 0]
+  ]
+};
 
 const checkWinner = (board: BoardState) => {
   const lines = [
@@ -46,8 +94,10 @@ const getAIMove = (board: BoardState, difficulty: 'easy' | 'medium' | 'hard'): n
 export default function App() {
   const [activeTab, setActiveTab] = useState<'sudoku' | 'xo'>('sudoku');
 
-  const [grid, setGrid] = useState<number[][]>(Array(9).fill(0).map(() => Array(9).fill(0)));
-  const [notes, setNotes] = useState<Set<number>[][]>(Array(9).fill(0).map(() => Array(9).fill(0).map(() => new Set())));
+  const [sudokuDiff, setSudokuDiff] = useState<Difficulty>('Medium');
+  const [grid, setGrid] = useState<number[][]>([]);
+  const [initialGrid, setInitialGrid] = useState<number[][]>([]);
+  const [notes, setNotes] = useState<Set<number>[][]>([]);
   const [selectedCell, setSelectedCell] = useState<[number, number] | null>(null);
   const [isNotesMode, setIsNotesMode] = useState<boolean>(false);
   const [history, setHistory] = useState<{ grid: number[][]; notes: Set<number>[][] }[]>([]);
@@ -55,26 +105,19 @@ export default function App() {
   const [hintsLeft, setHintsLeft] = useState<number>(5);
 
   useEffect(() => {
-    startNewSudoku();
-  }, []);
+    loadSudokuLevel(sudokuDiff);
+  }, [sudokuDiff]);
 
-  const startNewSudoku = () => {
-    const initialGrid = [
-      [5, 3, 0, 0, 7, 0, 0, 0, 0],
-      [6, 0, 0, 1, 9, 5, 0, 0, 0],
-      [0, 9, 8, 0, 0, 0, 0, 6, 0],
-      [8, 0, 0, 0, 6, 0, 0, 0, 3],
-      [4, 0, 0, 8, 0, 3, 0, 0, 1],
-      [7, 0, 0, 0, 2, 0, 0, 0, 6],
-      [0, 6, 0, 0, 0, 0, 2, 8, 0],
-      [0, 0, 0, 4, 1, 9, 0, 0, 5],
-      [0, 0, 0, 0, 8, 0, 0, 7, 9]
-    ];
-    setGrid(initialGrid);
+  const loadSudokuLevel = (diff: Difficulty) => {
+    const template = SUDOKU_BOARDS[diff];
+    const newGrid = template.map(row => [...row]);
+    setGrid(newGrid);
+    setInitialGrid(template.map(row => [...row]));
     setNotes(Array(9).fill(0).map(() => Array(9).fill(0).map(() => new Set())));
     setHistory([]);
     setMistakes(0);
     setHintsLeft(5);
+    setSelectedCell(null);
   };
 
   const saveHistory = () => {
@@ -86,6 +129,8 @@ export default function App() {
   const handleNumberInput = (num: number) => {
     if (!selectedCell) return;
     const [r, c] = selectedCell;
+    if (initialGrid[r][c] !== 0) return;
+
     saveHistory();
 
     if (isNotesMode) {
@@ -106,6 +151,8 @@ export default function App() {
   const handleErase = () => {
     if (!selectedCell) return;
     const [r, c] = selectedCell;
+    if (initialGrid[r][c] !== 0) return;
+
     saveHistory();
     const newGrid = grid.map(row => [...row]);
     newGrid[r][c] = 0;
@@ -166,22 +213,42 @@ export default function App() {
   return (
     <div style={{ background: '#0d1322', color: '#fff', minHeight: '100vh', padding: '15px', fontFamily: 'sans-serif' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
-        <button onClick={() => setActiveTab('sudoku')} style={{ background: activeTab === 'sudoku' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>Sudoku</button>
-        <button onClick={() => setActiveTab('xo')} style={{ background: activeTab === 'xo' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>X - O Game</button>
+        <button onClick={() => setActiveTab('sudoku')} style={{ background: activeTab === 'sudoku' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>Sudoku</button>
+        <button onClick={() => setActiveTab('xo')} style={{ background: activeTab === 'xo' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>X - O Game</button>
       </div>
 
       {activeTab === 'sudoku' ? (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-            <span>الأخطاء: {mistakes}/5</span>
-            <button onClick={startNewSudoku} style={{ background: '#334155', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '5px' }}>لعبة جديدة 🔄</button>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '12px' }}>
+            {(['Easy', 'Medium', 'Hard', 'Expert'] as Difficulty[]).map(level => (
+              <button
+                key={level}
+                onClick={() => setSudokuDiff(level)}
+                style={{
+                  background: sudokuDiff === level ? '#f59e0b' : '#1e293b',
+                  color: '#fff',
+                  border: 'none',
+                  padding: '6px 14px',
+                  borderRadius: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                {level}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '14px' }}>
+            <span style={{ color: '#ef4444' }}>الأخطاء: {mistakes}/5</span>
+            <button onClick={() => loadSudokuLevel(sudokuDiff)} style={{ background: '#334155', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '5px' }}>لعبة جديدة 🔄</button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '2px', background: '#334155', padding: '4px', borderRadius: '8px' }}>
             {grid.map((row, rIdx) =>
               row.map((val, cIdx) => {
                 const isSelected = selectedCell?.[0] === rIdx && selectedCell?.[1] === cIdx;
-                const cellNotes = Array.from(notes[rIdx][cIdx]);
+                const isFixed = initialGrid[rIdx]?.[cIdx] !== 0;
+                const cellNotes = Array.from(notes[rIdx]?.[cIdx] || []);
                 return (
                   <div
                     key={`${rIdx}-${cIdx}`}
@@ -189,12 +256,12 @@ export default function App() {
                     style={{
                       aspectRatio: '1',
                       background: isSelected ? '#1e3a8a' : '#1e293b',
-                      color: val ? '#60a5fa' : '#94a3b8',
+                      color: isFixed ? '#ffffff' : val ? '#38bdf8' : '#94a3b8',
+                      fontWeight: isFixed ? 'bold' : 'normal',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '18px',
-                      fontWeight: 'bold',
                       cursor: 'pointer',
                       position: 'relative'
                     }}
@@ -202,7 +269,7 @@ export default function App() {
                     {val !== 0 ? val : (
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', fontSize: '8px', width: '100%', height: '100%', padding: '1px' }}>
                         {[1,2,3,4,5,6,7,8,9].map(n => (
-                          <span key={n} style={{ textAlign: 'center' }}>{cellNotes.includes(n) ? n : ''}</span>
+                          <span key={n} style={{ textAlign: 'center', color: '#94a3b8' }}>{cellNotes.includes(n) ? n : ''}</span>
                         ))}
                       </div>
                     )}
@@ -212,11 +279,11 @@ export default function App() {
             )}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '5px', marginTop: '15px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px', marginTop: '15px' }}>
             {[1,2,3,4,5,6,7,8,9].map(n => (
-              <button key={n} onClick={() => handleNumberInput(n)} style={{ background: '#1e293b', color: '#38bdf8', border: 'none', padding: '12px', fontSize: '18px', borderRadius: '6px' }}>{n}</button>
+              <button key={n} onClick={() => handleNumberInput(n)} style={{ background: '#1e293b', color: '#38bdf8', border: 'none', padding: '12px', fontSize: '18px', borderRadius: '6px', fontWeight: 'bold' }}>{n}</button>
             ))}
-            <button onClick={handleErase} style={{ background: '#1e293b', color: '#f43f5e', border: 'none', padding: '12px', borderRadius: '6px' }}>مسح ⌫</button>
+            <button onClick={handleErase} style={{ background: '#1e293b', color: '#f43f5e', border: 'none', padding: '12px', borderRadius: '6px', fontWeight: 'bold' }}>مسح ⌫</button>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: '15px' }}>
