@@ -26,11 +26,11 @@ jobs:
       - name: Build Web App
         run: npm run build --if-present
 
-      - name: Setup Java JDK
+      - name: Setup Java JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Add Android Platform & Build APK
         run: |
