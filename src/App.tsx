@@ -3,50 +3,102 @@ import React, { useState, useEffect } from 'react';
 type BoardState = (string | null)[];
 type Difficulty = 'Easy' | 'Medium' | 'Hard' | 'Expert';
 
-const SUDOKU_BOARDS: Record<Difficulty, number[][]> = {
+const SUDOKU_BOARDS: Record<Difficulty, number[][][]> = {
   Easy: [
-    [5, 3, 0, 0, 7, 0, 0, 0, 0],
-    [6, 0, 0, 1, 9, 5, 0, 0, 0],
-    [0, 9, 8, 0, 0, 0, 0, 6, 0],
-    [8, 0, 0, 0, 6, 0, 0, 0, 3],
-    [4, 0, 0, 8, 0, 3, 0, 0, 1],
-    [7, 0, 0, 0, 2, 0, 0, 0, 6],
-    [0, 6, 0, 0, 0, 0, 2, 8, 0],
-    [0, 0, 0, 4, 1, 9, 0, 0, 5],
-    [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    [
+      [5, 3, 0, 0, 7, 0, 0, 0, 0],
+      [6, 0, 0, 1, 9, 5, 0, 0, 0],
+      [0, 9, 8, 0, 0, 0, 0, 6, 0],
+      [8, 0, 0, 0, 6, 0, 0, 0, 3],
+      [4, 0, 0, 8, 0, 3, 0, 0, 1],
+      [7, 0, 0, 0, 2, 0, 0, 0, 6],
+      [0, 6, 0, 0, 0, 0, 2, 8, 0],
+      [0, 0, 0, 4, 1, 9, 0, 0, 5],
+      [0, 0, 0, 0, 8, 0, 0, 7, 9]
+    ],
+    [
+      [1, 0, 4, 0, 0, 0, 7, 0, 9],
+      [0, 3, 2, 5, 0, 0, 0, 8, 0],
+      [0, 0, 0, 0, 1, 0, 5, 0, 0],
+      [0, 0, 0, 2, 0, 8, 0, 0, 4],
+      [0, 5, 0, 0, 0, 0, 0, 3, 0],
+      [2, 0, 0, 9, 0, 5, 0, 0, 0],
+      [0, 0, 9, 0, 3, 0, 0, 0, 0],
+      [0, 2, 0, 0, 0, 7, 1, 4, 0],
+      [3, 0, 5, 0, 0, 0, 8, 0, 6]
+    ]
   ],
   Medium: [
-    [0, 0, 0, 2, 6, 0, 7, 0, 1],
-    [6, 8, 0, 0, 7, 0, 0, 9, 0],
-    [1, 9, 0, 0, 0, 4, 5, 0, 0],
-    [8, 2, 0, 1, 0, 0, 0, 4, 0],
-    [0, 0, 4, 6, 0, 2, 9, 0, 0],
-    [0, 5, 0, 0, 0, 3, 0, 2, 8],
-    [0, 0, 9, 3, 0, 0, 0, 7, 4],
-    [0, 4, 0, 0, 5, 0, 0, 3, 6],
-    [7, 0, 3, 0, 1, 8, 0, 0, 0]
+    [
+      [0, 0, 0, 2, 6, 0, 7, 0, 1],
+      [6, 8, 0, 0, 7, 0, 0, 9, 0],
+      [1, 9, 0, 0, 0, 4, 5, 0, 0],
+      [8, 2, 0, 1, 0, 0, 0, 4, 0],
+      [0, 0, 4, 6, 0, 2, 9, 0, 0],
+      [0, 5, 0, 0, 0, 3, 0, 2, 8],
+      [0, 0, 9, 3, 0, 0, 0, 7, 4],
+      [0, 4, 0, 0, 5, 0, 0, 3, 6],
+      [7, 0, 3, 0, 1, 8, 0, 0, 0]
+    ],
+    [
+      [0, 2, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 6, 0, 0, 0, 0, 3],
+      [0, 7, 4, 0, 8, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 3, 0, 0, 2],
+      [0, 8, 0, 0, 4, 0, 0, 1, 0],
+      [6, 0, 0, 5, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 1, 0, 7, 8, 0],
+      [5, 0, 0, 0, 0, 9, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 4, 0]
+    ]
   ],
   Hard: [
-    [0, 2, 0, 6, 0, 8, 0, 0, 0],
-    [5, 8, 0, 0, 0, 9, 7, 0, 0],
-    [0, 0, 0, 0, 4, 0, 0, 0, 0],
-    [3, 7, 0, 0, 0, 0, 5, 0, 0],
-    [6, 0, 0, 0, 0, 0, 0, 0, 4],
-    [0, 0, 8, 0, 0, 0, 0, 1, 3],
-    [0, 0, 0, 0, 2, 0, 0, 0, 0],
-    [0, 0, 9, 8, 0, 0, 0, 3, 6],
-    [0, 0, 0, 3, 0, 6, 0, 9, 0]
+    [
+      [0, 2, 0, 6, 0, 8, 0, 0, 0],
+      [5, 8, 0, 0, 0, 9, 7, 0, 0],
+      [0, 0, 0, 0, 4, 0, 0, 0, 0],
+      [3, 7, 0, 0, 0, 0, 5, 0, 0],
+      [6, 0, 0, 0, 0, 0, 0, 0, 4],
+      [0, 0, 8, 0, 0, 0, 0, 1, 3],
+      [0, 0, 0, 0, 2, 0, 0, 0, 0],
+      [0, 0, 9, 8, 0, 0, 0, 3, 6],
+      [0, 0, 0, 3, 0, 6, 0, 9, 0]
+    ],
+    [
+      [1, 0, 0, 0, 0, 7, 0, 9, 0],
+      [0, 3, 0, 0, 2, 0, 0, 0, 8],
+      [0, 0, 9, 6, 0, 0, 5, 0, 0],
+      [0, 0, 5, 3, 0, 0, 9, 0, 0],
+      [0, 1, 0, 0, 8, 0, 0, 2, 0],
+      [0, 0, 6, 0, 0, 5, 1, 0, 0],
+      [0, 0, 3, 0, 0, 9, 8, 0, 0],
+      [9, 0, 0, 0, 4, 0, 0, 6, 0],
+      [0, 5, 0, 1, 0, 0, 0, 0, 3]
+    ]
   ],
   Expert: [
-    [0, 0, 0, 0, 0, 0, 0, 1, 2],
-    [0, 0, 0, 0, 0, 0, 0, 0, 3],
-    [0, 0, 2, 3, 0, 0, 4, 0, 0],
-    [0, 0, 1, 8, 0, 0, 0, 0, 5],
-    [0, 6, 0, 0, 7, 0, 0, 8, 0],
-    [0, 0, 0, 0, 0, 9, 2, 0, 0],
-    [0, 0, 8, 5, 0, 0, 6, 0, 0],
-    [9, 0, 0, 0, 0, 0, 0, 0, 0],
-    [4, 7, 0, 0, 0, 0, 0, 0, 0]
+    [
+      [0, 0, 0, 0, 0, 0, 0, 1, 2],
+      [0, 0, 0, 0, 0, 0, 0, 0, 3],
+      [0, 0, 2, 3, 0, 0, 4, 0, 0],
+      [0, 0, 1, 8, 0, 0, 0, 0, 5],
+      [0, 6, 0, 0, 7, 0, 0, 8, 0],
+      [0, 0, 0, 0, 0, 9, 2, 0, 0],
+      [0, 0, 8, 5, 0, 0, 6, 0, 0],
+      [9, 0, 0, 0, 0, 0, 0, 0, 0],
+      [4, 7, 0, 0, 0, 0, 0, 0, 0]
+    ],
+    [
+      [0, 0, 0, 7, 0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 5],
+      [0, 0, 8, 0, 3, 0, 2, 0, 0],
+      [0, 5, 0, 0, 0, 1, 0, 0, 0],
+      [4, 0, 0, 0, 0, 0, 0, 0, 6],
+      [0, 0, 0, 5, 0, 0, 0, 7, 0],
+      [0, 0, 2, 0, 6, 0, 1, 0, 0],
+      [8, 0, 0, 0, 0, 0, 0, 0, 3],
+      [0, 0, 0, 0, 0, 9, 0, 0, 0]
+    ]
   ]
 };
 
@@ -62,6 +114,22 @@ const checkWinner = (board: BoardState) => {
     }
   }
   return board.includes(null) ? null : 'Tie';
+};
+
+const isSudokuWon = (currentGrid: number[][]) => {
+  if (!currentGrid || currentGrid.length !== 9) return false;
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (currentGrid[r][c] === 0) return false;
+    }
+  }
+  for (let i = 0; i < 9; i++) {
+    const rowSet = new Set(currentGrid[i]);
+    if (rowSet.size !== 9) return false;
+    const colSet = new Set(currentGrid.map(row => row[i]));
+    if (colSet.size !== 9) return false;
+  }
+  return true;
 };
 
 const getAIMove = (board: BoardState, difficulty: 'easy' | 'medium' | 'hard'): number => {
@@ -109,7 +177,10 @@ export default function App() {
   }, [sudokuDiff]);
 
   const loadSudokuLevel = (diff: Difficulty) => {
-    const template = SUDOKU_BOARDS[diff];
+    const boardsList = SUDOKU_BOARDS[diff];
+    const randomIndex = Math.floor(Math.random() * boardsList.length);
+    const template = boardsList[randomIndex];
+    
     const newGrid = template.map(row => [...row]);
     setGrid(newGrid);
     setInitialGrid(template.map(row => [...row]));
@@ -127,7 +198,7 @@ export default function App() {
   };
 
   const handleNumberInput = (num: number) => {
-    if (!selectedCell) return;
+    if (!selectedCell || isSudokuWon(grid)) return;
     const [r, c] = selectedCell;
     if (initialGrid[r][c] !== 0) return;
 
@@ -149,7 +220,7 @@ export default function App() {
   };
 
   const handleErase = () => {
-    if (!selectedCell) return;
+    if (!selectedCell || isSudokuWon(grid)) return;
     const [r, c] = selectedCell;
     if (initialGrid[r][c] !== 0) return;
 
@@ -172,16 +243,18 @@ export default function App() {
   };
 
   const handleHint = () => {
-    if (hintsLeft <= 0 || !selectedCell) return;
+    if (hintsLeft <= 0 || !selectedCell || isSudokuWon(grid)) return;
     setHintsLeft(prev => prev - 1);
   };
 
+  // --- X-O State ---
   const [xoBoard, setXoBoard] = useState<BoardState>(Array(9).fill(null));
   const [isVsAI, setIsVsAI] = useState<boolean>(true);
   const [aiDifficulty, setAiDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium');
   const [isXNext, setIsXNext] = useState<boolean>(true);
 
   const winner = checkWinner(xoBoard);
+  const sudokuWon = isSudokuWon(grid);
 
   const handleXOClick = (index: number) => {
     if (xoBoard[index] || winner) return;
@@ -212,6 +285,26 @@ export default function App() {
 
   return (
     <div style={{ background: '#0d1322', color: '#fff', minHeight: '100vh', padding: '15px', fontFamily: 'sans-serif' }}>
+      <style>{`
+        @keyframes bounceWin {
+          0% { transform: scale(0.8); opacity: 0; }
+          50% { transform: scale(1.05); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        .win-banner {
+          animation: bounceWin 0.4s ease-in-out forwards;
+          background: linear-gradient(135deg, #10b981, #059669);
+          color: white;
+          padding: 12px;
+          border-radius: 10px;
+          text-align: center;
+          font-size: 18px;
+          font-weight: bold;
+          margin-bottom: 12px;
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+        }
+      `}</style>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
         <button onClick={() => setActiveTab('sudoku')} style={{ background: activeTab === 'sudoku' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>Sudoku</button>
         <button onClick={() => setActiveTab('xo')} style={{ background: activeTab === 'xo' ? '#2196F3' : '#1e293b', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}>X - O Game</button>
@@ -243,39 +336,54 @@ export default function App() {
             <button onClick={() => loadSudokuLevel(sudokuDiff)} style={{ background: '#334155', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '5px' }}>لعبة جديدة 🔄</button>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '2px', background: '#334155', padding: '4px', borderRadius: '8px' }}>
-            {grid.map((row, rIdx) =>
-              row.map((val, cIdx) => {
-                const isSelected = selectedCell?.[0] === rIdx && selectedCell?.[1] === cIdx;
-                const isFixed = initialGrid[rIdx]?.[cIdx] !== 0;
-                const cellNotes = Array.from(notes[rIdx]?.[cIdx] || []);
-                return (
-                  <div
-                    key={`${rIdx}-${cIdx}`}
-                    onClick={() => setSelectedCell([rIdx, cIdx])}
-                    style={{
-                      aspectRatio: '1',
-                      background: isSelected ? '#1e3a8a' : '#1e293b',
-                      color: isFixed ? '#ffffff' : val ? '#38bdf8' : '#94a3b8',
-                      fontWeight: isFixed ? 'bold' : 'normal',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '18px',
-                      cursor: 'pointer',
-                      position: 'relative'
-                    }}
-                  >
-                    {val !== 0 ? val : (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', fontSize: '8px', width: '100%', height: '100%', padding: '1px' }}>
-                        {[1,2,3,4,5,6,7,8,9].map(n => (
-                          <span key={n} style={{ textAlign: 'center', color: '#94a3b8' }}>{cellNotes.includes(n) ? n : ''}</span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
+          {sudokuWon && (
+            <div className="win-banner">
+              🎉 مبروك! لقد فزت في السودوكو بنجاح! 🎉
+            </div>
+          )}
+
+          {/* Sudoku Grid with 3x3 Subgrid Borders */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px', background: '#38bdf8', padding: '4px', borderRadius: '10px' }}>
+            {[0, 1, 2].map(boxR =>
+              [0, 1, 2].map(boxC => (
+                <div key={`box-${boxR}-${boxC}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', background: '#334155' }}>
+                  {[0, 1, 2].map(r =>
+                    [0, 1, 2].map(c => {
+                      const rIdx = boxR * 3 + r;
+                      const cIdx = boxC * 3 + c;
+                      const val = grid[rIdx]?.[cIdx];
+                      const isSelected = selectedCell?.[0] === rIdx && selectedCell?.[1] === cIdx;
+                      const isFixed = initialGrid[rIdx]?.[cIdx] !== 0;
+                      const cellNotes = Array.from(notes[rIdx]?.[cIdx] || []);
+                      return (
+                        <div
+                          key={`${rIdx}-${cIdx}`}
+                          onClick={() => setSelectedCell([rIdx, cIdx])}
+                          style={{
+                            aspectRatio: '1',
+                            background: isSelected ? '#1e3a8a' : '#1e293b',
+                            color: isFixed ? '#ffffff' : val ? '#38bdf8' : '#94a3b8',
+                            fontWeight: isFixed ? 'bold' : 'normal',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '18px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {val !== 0 ? val : (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', fontSize: '7px', width: '100%', height: '100%', padding: '1px' }}>
+                              {[1,2,3,4,5,6,7,8,9].map(n => (
+                                <span key={n} style={{ textAlign: 'center', color: '#94a3b8' }}>{cellNotes.includes(n) ? n : ''}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              ))
             )}
           </div>
 
@@ -318,6 +426,12 @@ export default function App() {
                   {level === 'easy' ? 'سهل' : level === 'medium' ? 'متوسط' : 'صعب'}
                 </button>
               ))}
+            </div>
+          )}
+
+          {winner && (
+            <div className="win-banner">
+              {winner === 'Tie' ? 'تعادل!' : `🎉 الفائز هو: ${winner} 🎉`}
             </div>
           )}
 
