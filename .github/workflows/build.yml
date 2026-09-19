@@ -19,7 +19,9 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Build Web App
         run: npm run build --if-present
@@ -30,13 +32,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build APK
+      - name: Add Android Platform & Build APK
         run: |
-          if [ -d "android" ]; then
-            cd android && chmod +x gradlew && ./gradlew assembleRelease
-          elif [ -f "gradlew" ]; then
-            chmod +x gradlew && ./gradlew assembleRelease
+          if [ ! -d "android" ]; then
+            npx cap init "Games TA" "com.gamesta.app" --web-dir dist || true
+            npx cap add android
           fi
+          npx cap sync
+          cd android && chmod +x gradlew && ./gradlew assembleDebug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
