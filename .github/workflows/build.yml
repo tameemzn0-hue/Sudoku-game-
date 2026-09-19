@@ -34,13 +34,15 @@ jobs:
 
       - name: Add Android Platform & Build APK
         run: |
+          mkdir -p ~/.android
+          keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" || true
+
           if [ ! -d "android" ]; then
             npx cap init "Games TA" "com.gamesta.app" --web-dir dist || true
             npx cap add android
           fi
           npx cap sync
 
-          # استبعاد ملفات كوتلن القديمة المسببة للتعارض
           echo "
           configurations.all {
               exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
